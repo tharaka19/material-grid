@@ -102,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/daily-routes/report/summary/**").permitAll()
                         .requestMatchers("/api/v1/daily-routes/**").permitAll()
                         .requestMatchers("/api/v1/file-history/**").permitAll()
+                        .requestMatchers("/api/v1/persons/**").permitAll()
 
                         .anyRequest().permitAll()
                 )

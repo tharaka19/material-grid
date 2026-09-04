@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,11 +38,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException ex) {
-        // DATA_INTEGRITY_ERROR cases (see ErrorCodeConstants) are still
-        // reported as 409 CONFLICT here, consistent with every other
-        // BusinessException - the distinct error code is what lets a client
-        // tell "expected business rule" apart from "unexpected data
-        // integrity issue" without a different HTTP status vocabulary.
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(ex.getMessage(), ex.getErrorCode()));
     }
@@ -95,11 +91,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * New: a missing/unparseable `date` or `vehicleId` query parameter on
-     * the report endpoints would otherwise fall through to the generic
-     * Exception handler below and incorrectly return 500. These two
-     * handlers give the correct 400 with a clean message instead.
+     * NEW: covers a malformed JSON body, including an invalid enum value
+     * such as personType: "EMPLOYEE" (see the Person module's PersonType).
+     * Jackson fails to deserialize the request before Bean Validation ever
+     * runs, so without this handler the failure fell through to the
+     * generic 500 handler below instead of a clean 400.
      */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMalformedRequest(HttpMessageNotReadableException ex) {
+        String message = "The request body is invalid or contains an unsupported value.";
+        Throwable cause = ex.getCause();
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException ife
+                && ife.getTargetType() != null && ife.getTargetType().isEnum()) {
+            message = "Invalid value for field: expected one of "
+                    + java.util.Arrays.toString(ife.getTargetType().getEnumConstants());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(message, ErrorCodeConstants.VALIDATION_FAILED));
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse<Void>> handleMissingParam(MissingServletRequestParameterException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

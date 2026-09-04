@@ -1,6 +1,5 @@
 package com.pixelMind.materialGrid.mapper;
 
-import com.pixelMind.materialGrid.constant.StatusConstants;
 import com.pixelMind.materialGrid.dto.response.LicenseResponse;
 import com.pixelMind.materialGrid.entity.License;
 import org.springframework.stereotype.Component;

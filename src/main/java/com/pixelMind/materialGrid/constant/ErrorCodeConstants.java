@@ -31,9 +31,8 @@ public final class ErrorCodeConstants {
     public static final String DUPLICATE_FILE_UPLOAD = "DUPLICATE_FILE_UPLOAD";
     public static final String FILE_HISTORY_NOT_FOUND = "FILE_HISTORY_NOT_FOUND";
 
-    // New for the Vehicle Payment Receipt: a single date within the report
-    // range has DailyRoute records referencing genuinely different price
-    // rate VALUES - see DailyRouteReportServiceImpl for why this can't be
-    // silently resolved by picking one.
     public static final String AMBIGUOUS_PRICE_RATE = "AMBIGUOUS_PRICE_RATE";
+
+    // New for Person module
+    public static final String PERSON_NOT_FOUND = "PERSON_NOT_FOUND";
 }
