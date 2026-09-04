@@ -32,6 +32,9 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public PersonResponse createPerson(PersonCreateRequest request) {
+
+        // TODO: Validate person to avoid duplicate person names
+
         String actor = SecurityUtil.getCurrentUsername();
 
         String personCode = codeGeneratorService.nextCode(
@@ -70,6 +73,9 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public PersonResponse updatePerson(Long id, PersonUpdateRequest request) {
+
+        // TODO: Is exists any as escavator or checking records, need special authority to update this
+
         Person person = findOrThrow(id);
         person.setName(request.getName().trim());
         person.setPersonType(request.getPersonType());
@@ -84,6 +90,9 @@ public class PersonServiceImpl implements PersonService {
     @Override
     @Transactional
     public void deletePerson(Long id) {
+
+        // TODO: Is exists any as escavator or checking records, must avoid delete
+
         Person person = findOrThrow(id);
         personRepository.delete(person);
         log.info("Person deleted: id={}, by={}", id, SecurityUtil.getCurrentUsername());

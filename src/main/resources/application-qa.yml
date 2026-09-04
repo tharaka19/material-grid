@@ -1,11 +1,8 @@
 spring:
-  application:
-    name: materialGrid
-
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:mysql://187.52.124.152:3307/material_grid_qa_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Colombo}
+    username: ${DB_USERNAME:materialgrid_qa_admin}
+    password: ${DB_PASSWORD:materialgridqaadmin}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     hikari:
@@ -19,13 +16,14 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
         jdbc:
-          time_zone: UTC
+          time_zone: Asia/Colombo
 
   flyway:
-    enabled: false
+    enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: false
+    baseline-on-migrate: true
 
 server:
   port: 8080
@@ -46,7 +44,3 @@ logging:
   level:
     root: INFO
     com.example.materialGrid: INFO
-
-cors:
-  allowed-origins:
-    - https://meskoramaterialgrid.com
