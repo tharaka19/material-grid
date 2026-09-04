@@ -3,11 +3,12 @@ CREATE TABLE person (
     person_code     VARCHAR(20)  NOT NULL,
     name            VARCHAR(150) NOT NULL,
     person_type     VARCHAR(30)  NOT NULL,
-    added_by        VARCHAR(50),
-    added_date      DATETIME(6)  NOT NULL,
+    created_by        VARCHAR(50),
+    created_date      DATETIME(6)  NOT NULL,
     modified_by     VARCHAR(50),
     modified_date   DATETIME(6)  NOT NULL,
     version         BIGINT       NOT NULL DEFAULT 0,
+    deleted         TINYINT(1)    NOT NULL DEFAULT 0,
 
     CONSTRAINT uk_person_person_code UNIQUE (person_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
