@@ -151,7 +151,7 @@ public class PersonVehicleDetailPdfServiceImpl implements PersonVehicleDetailPdf
             addCell(table, DateTimeUtil.formatReportDate(row.getDate()), Element.ALIGN_CENTER, TABLE_CELL_FONT);
             addCell(table, row.getVehicleNumber(), Element.ALIGN_LEFT, TABLE_CELL_FONT);
             addCell(table, MoneyFormatUtil.format(row.getVehicleCapacity()), Element.ALIGN_RIGHT, TABLE_CELL_FONT);
-            addCell(table, String.valueOf(row.getLoadCount()), Element.ALIGN_CENTER, TABLE_CELL_FONT);
+            addCell(table, String.valueOf(row.getLoadCount()), Element.ALIGN_RIGHT, TABLE_CELL_FONT);
             addCell(table, MoneyFormatUtil.format(row.getTotalVehicleCapacity()), Element.ALIGN_RIGHT, TABLE_CELL_FONT);
         }
 
@@ -163,7 +163,7 @@ public class PersonVehicleDetailPdfServiceImpl implements PersonVehicleDetailPdf
         table.addCell(totalLabelCell);
 
         PdfPCell totalValueCell = new PdfPCell(new Phrase(String.valueOf(receipt.getGrandTotalLoadCount()), TOTAL_ROW_FONT));
-        totalValueCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        totalValueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         totalValueCell.setBackgroundColor(HIGHLIGHT_BG);
         totalValueCell.setPadding(6f);
         table.addCell(totalValueCell);

@@ -1,6 +1,7 @@
 package com.pixelMind.materialGrid.controller;
 
 import com.pixelMind.materialGrid.dto.response.PersonVehicleDetailReceipt;
+import com.pixelMind.materialGrid.service.PersonVehicleDetailExcelService;
 import com.pixelMind.materialGrid.service.PersonVehicleDetailPdfService;
 import com.pixelMind.materialGrid.service.PersonVehicleDetailReportService;
 import com.pixelMind.materialGrid.util.PdfFileNameUtil;
@@ -20,51 +21,84 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 
 /**
- * Deliberately thin, mirroring DailyRouteReportController exactly: request
- * in, delegate to the report service for data + consolidation, delegate to
- * the PDF service for rendering, attach the right Content-Disposition,
- * return bytes.
+ * MODIFIED: added Excel preview/download endpoints alongside the existing
+ * PDF pair. Both formats call the SAME
+ * PersonVehicleDetailReportService.generateReceipt(...) - there is no
+ * separate Excel data path, per this feature's explicit reuse requirement.
+ * Still deliberately thin - no business logic, no database access, no
+ * POI/PDF-library code here.
  */
-@Tag(name = "Person Vehicle Detail Reports", description = "Read-only PDF receipt for a single person's vehicle assignments across a date range")
+@Tag(name = "Person Vehicle Detail Reports", description = "Read-only PDF/Excel receipt for a single person's vehicle assignments across a date range")
 @RestController
 @RequestMapping("/api/v1/person-vehicle-details/report")
 @RequiredArgsConstructor
 public class PersonVehicleDetailReportController {
 
+    private static final MediaType XLSX_MEDIA_TYPE =
+            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
     private final PersonVehicleDetailReportService personVehicleDetailReportService;
     private final PersonVehicleDetailPdfService personVehicleDetailPdfService;
+    private final PersonVehicleDetailExcelService personVehicleDetailExcelService;
 
     @Operation(summary = "Preview the Person Vehicle Details receipt PDF inline (personId + startDate + endDate)")
     @GetMapping("/preview")
-    public ResponseEntity<byte[]> preview(
+    public ResponseEntity<byte[]> previewPdf(
             @RequestParam Long personId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return buildPdfResponse(personId, startDate, endDate, ContentDisposition.inline());
+        PersonVehicleDetailReceipt receipt = personVehicleDetailReportService.generateReceipt(personId, startDate, endDate);
+        byte[] pdfBytes = personVehicleDetailPdfService.generatePdf(receipt);
+        String fileName = PdfFileNameUtil.buildPersonVehicleDetailFileName(
+                receipt.getPersonCode(), receipt.getStartDate(), receipt.getEndDate());
+        return buildResponse(pdfBytes, MediaType.APPLICATION_PDF, fileName, ContentDisposition.inline());
     }
 
     @Operation(summary = "Download the Person Vehicle Details receipt PDF as an attachment (personId + startDate + endDate)")
     @GetMapping("/download")
-    public ResponseEntity<byte[]> download(
+    public ResponseEntity<byte[]> downloadPdf(
             @RequestParam Long personId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return buildPdfResponse(personId, startDate, endDate, ContentDisposition.attachment());
-    }
-
-    private ResponseEntity<byte[]> buildPdfResponse(Long personId, LocalDate startDate, LocalDate endDate,
-                                                    ContentDisposition.Builder dispositionBuilder) {
         PersonVehicleDetailReceipt receipt = personVehicleDetailReportService.generateReceipt(personId, startDate, endDate);
         byte[] pdfBytes = personVehicleDetailPdfService.generatePdf(receipt);
-
         String fileName = PdfFileNameUtil.buildPersonVehicleDetailFileName(
                 receipt.getPersonCode(), receipt.getStartDate(), receipt.getEndDate());
-        ContentDisposition disposition = dispositionBuilder.filename(fileName).build();
+        return buildResponse(pdfBytes, MediaType.APPLICATION_PDF, fileName, ContentDisposition.attachment());
+    }
 
+    @Operation(summary = "Preview the Person Vehicle Details receipt as Excel (personId + startDate + endDate). Same data/validation/consolidation as the PDF.")
+    @GetMapping("/excel/preview")
+    public ResponseEntity<byte[]> previewExcel(
+            @RequestParam Long personId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        PersonVehicleDetailReceipt receipt = personVehicleDetailReportService.generateReceipt(personId, startDate, endDate);
+        byte[] excelBytes = personVehicleDetailExcelService.generateExcel(receipt);
+        String fileName = PdfFileNameUtil.buildPersonVehicleDetailFileName(
+                receipt.getPersonCode(), receipt.getStartDate(), receipt.getEndDate(), "xlsx");
+        return buildResponse(excelBytes, XLSX_MEDIA_TYPE, fileName, ContentDisposition.inline());
+    }
+
+    @Operation(summary = "Download the Person Vehicle Details receipt as an Excel attachment (personId + startDate + endDate). Same data/validation/consolidation as the PDF.")
+    @GetMapping("/excel/download")
+    public ResponseEntity<byte[]> downloadExcel(
+            @RequestParam Long personId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        PersonVehicleDetailReceipt receipt = personVehicleDetailReportService.generateReceipt(personId, startDate, endDate);
+        byte[] excelBytes = personVehicleDetailExcelService.generateExcel(receipt);
+        String fileName = PdfFileNameUtil.buildPersonVehicleDetailFileName(
+                receipt.getPersonCode(), receipt.getStartDate(), receipt.getEndDate(), "xlsx");
+        return buildResponse(excelBytes, XLSX_MEDIA_TYPE, fileName, ContentDisposition.attachment());
+    }
+
+    private ResponseEntity<byte[]> buildResponse(byte[] bytes, MediaType mediaType, String fileName,
+                                                 ContentDisposition.Builder dispositionBuilder) {
+        ContentDisposition disposition = dispositionBuilder.filename(fileName).build();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(disposition);
-        headers.setContentType(MediaType.APPLICATION_PDF);
-
-        return ResponseEntity.ok().headers(headers).body(pdfBytes);
+        headers.setContentType(mediaType);
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 }
