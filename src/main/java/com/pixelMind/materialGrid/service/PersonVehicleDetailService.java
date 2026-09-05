@@ -15,7 +15,8 @@ public interface PersonVehicleDetailService {
     PersonVehicleDetailResponse getPersonVehicleDetail(Long id);
 
     Page<PersonVehicleDetailResponse> search(
-            Long personId, Long vehicleId, LocalDate date, LocalDate startDate, LocalDate endDate, Pageable pageable);
+            Long personId, Long vehicleId, LocalDate date, LocalDate startDate, LocalDate endDate,
+            LocalDate createdDate, Long fileHistoryId, Pageable pageable);
 
     PersonVehicleDetailResponse updatePersonVehicleDetail(Long id, PersonVehicleDetailUpdateRequest request);
 

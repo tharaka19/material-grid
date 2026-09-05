@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -72,8 +73,13 @@ public class PersonVehicleDetailServiceImpl implements PersonVehicleDetailServic
     @Override
     @Transactional(readOnly = true)
     public Page<PersonVehicleDetailResponse> search(
-            Long personId, Long vehicleId, LocalDate date, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return personVehicleDetailRepository.search(personId, vehicleId, date, startDate, endDate, pageable)
+            Long personId, Long vehicleId, LocalDate date, LocalDate startDate, LocalDate endDate,
+            LocalDate createdDate, Long fileHistoryId, Pageable pageable) {
+        LocalDateTime createdDateFrom = createdDate != null ? createdDate.atStartOfDay() : null;
+        LocalDateTime createdDateTo = createdDate != null ? createdDate.plusDays(1).atStartOfDay() : null;
+
+        return personVehicleDetailRepository.search(
+                personId, vehicleId, date, startDate, endDate, createdDateFrom, createdDateTo, fileHistoryId, pageable)
                 .map(personVehicleDetailMapper::toResponse);
     }
 

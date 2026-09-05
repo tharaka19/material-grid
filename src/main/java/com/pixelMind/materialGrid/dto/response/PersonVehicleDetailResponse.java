@@ -1,4 +1,4 @@
-﻿package com.pixelMind.materialGrid.dto.response;
+package com.pixelMind.materialGrid.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -48,7 +48,7 @@ public class PersonVehicleDetailController {
         return ResponseEntity.ok(ApiResponse.success(result.getMessage(), result));
     }
 
-    @Operation(summary = "Search person vehicle details (paginated; filter by personId, vehicleId, date, or startDate/endDate)")
+    @Operation(summary = "Search person vehicle details (paginated; filter by personId, vehicleId, date, startDate/endDate, createdDate, or fileHistoryId)")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<PersonVehicleDetailResponse>>> search(
             @RequestParam(required = false) Long personId,
@@ -56,9 +56,11 @@ public class PersonVehicleDetailController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdDate,
+            @RequestParam(required = false) Long fileHistoryId,
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         PageResponse<PersonVehicleDetailResponse> page = new PageResponse<>(
-                personVehicleDetailService.search(personId, vehicleId, date, startDate, endDate, pageable));
+                personVehicleDetailService.search(personId, vehicleId, date, startDate, endDate, createdDate, fileHistoryId, pageable));
         return ResponseEntity.ok(ApiResponse.success("Person vehicle details retrieved successfully", page));
     }
 

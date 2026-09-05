@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -44,12 +45,16 @@ public interface PersonVehicleDetailRepository extends JpaRepository<PersonVehic
             select p from PersonVehicleDetail p
             join fetch p.person
             join fetch p.vehicle
+            left join p.fileHistory fh
             where p.deleted = false
               and (:personId is null or p.person.id = :personId)
               and (:vehicleId is null or p.vehicle.id = :vehicleId)
               and (:date is null or p.date = :date)
               and (:startDate is null or p.date >= :startDate)
               and (:endDate is null or p.date <= :endDate)
+              and (:createdDateFrom is null or p.createdDate >= :createdDateFrom)
+              and (:createdDateTo is null or p.createdDate < :createdDateTo)
+              and (:fileHistoryId is null or fh.id = :fileHistoryId)
             """)
     Page<PersonVehicleDetail> search(
             @Param("personId") Long personId,
@@ -57,6 +62,9 @@ public interface PersonVehicleDetailRepository extends JpaRepository<PersonVehic
             @Param("date") LocalDate date,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
+            @Param("createdDateFrom") LocalDateTime createdDateFrom,
+            @Param("createdDateTo") LocalDateTime createdDateTo,
+            @Param("fileHistoryId") Long fileHistoryId,
             Pageable pageable);
 
     /**
