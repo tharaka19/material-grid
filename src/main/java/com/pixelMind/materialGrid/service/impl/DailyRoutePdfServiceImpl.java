@@ -51,7 +51,7 @@ public class DailyRoutePdfServiceImpl implements DailyRoutePdfService {
 
     @Override
     public byte[] generatePdf(DailyRoutePaymentReceipt receipt) {
-        Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
+        Document document = new Document(PageSize.A4, 20, 20, 20, 20);
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfWriter.getInstance(document, out);

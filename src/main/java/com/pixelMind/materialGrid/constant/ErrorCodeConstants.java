@@ -33,6 +33,8 @@ public final class ErrorCodeConstants {
 
     public static final String AMBIGUOUS_PRICE_RATE = "AMBIGUOUS_PRICE_RATE";
 
-    // New for Person module
     public static final String PERSON_NOT_FOUND = "PERSON_NOT_FOUND";
+
+    public static final String PERSON_VEHICLE_DETAIL_NOT_FOUND = "PERSON_VEHICLE_DETAIL_NOT_FOUND";
+    public static final String DUPLICATE_PERSON_VEHICLE_DETAIL = "DUPLICATE_PERSON_VEHICLE_DETAIL";
 }

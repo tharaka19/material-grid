@@ -25,4 +25,18 @@ public final class PdfFileNameUtil {
         return ReportConstants.PDF_FILENAME_PREFIX + "-" + safeVehicleNumber
                 + "-" + startDate + "-to-" + endDate + ".pdf";
     }
+
+    /**
+     * NEW: for the Person Vehicle Details receipt - same sanitization
+     * approach as buildFileName above, keyed by personCode instead of
+     * vehicleNumber. Produces e.g.
+     * "person-vehicle-details-PER000001-2026-09-01-to-2026-09-30.pdf".
+     */
+    public static String buildPersonVehicleDetailFileName(String personCode, LocalDate startDate, LocalDate endDate) {
+        String safePersonCode = personCode == null
+                ? "unknown"
+                : personCode.replaceAll("[^A-Za-z0-9-]", "");
+        return ReportConstants.PERSON_VEHICLE_DETAIL_PDF_FILENAME_PREFIX + "-" + safePersonCode
+                + "-" + startDate + "-to-" + endDate + ".pdf";
+    }
 }

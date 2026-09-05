@@ -15,4 +15,6 @@ public final class ReportConstants {
     /** MODIFIED: was "daily-route-report" - the report is now explicitly a
      * payment receipt, per this enhancement's example filename. */
     public static final String PDF_FILENAME_PREFIX = "vehicle-payment-receipt";
+    public static final String PERSON_VEHICLE_DETAIL_PDF_FILENAME_PREFIX = "person-vehicle-details";
+
 }
