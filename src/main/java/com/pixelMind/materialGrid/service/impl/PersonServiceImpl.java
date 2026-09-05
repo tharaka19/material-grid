@@ -65,9 +65,9 @@ public class PersonServiceImpl implements PersonService {
     @Transactional(readOnly = true)
     public Page<PersonResponse> getPersons(String search, Pageable pageable) {
         if (StringUtils.hasText(search)) {
-            return personRepository.findByNameContainingIgnoreCaseAndDeletedFalse(search, pageable).map(personMapper::toResponse);
+            return personRepository.searchByNameOrPersonCode(search.trim(), pageable).map(personMapper::toResponse);
         }
-        return personRepository.findAll(pageable).map(personMapper::toResponse);
+        return personRepository.findAllByDeletedFalse(pageable).map(personMapper::toResponse);
     }
 
     @Override
