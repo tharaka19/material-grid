@@ -1,4 +1,4 @@
-package com.pixelMind.materialGrid.dto.response;
+﻿package com.pixelMind.materialGrid.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +15,8 @@ public class PersonVehicleDetailResponse {
     private LocalDate date;
     private PersonSummaryResponse person;
     private VehicleSummaryResponse vehicle;
+    private Long fileHistoryId;
+    private FileHistoryResponse fileHistory;
     private String createdBy;
     private LocalDateTime createdDate;
     private String modifiedBy;
