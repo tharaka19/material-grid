@@ -26,6 +26,10 @@ public interface PersonVehicleDetailRepository extends JpaRepository<PersonVehic
     List<PersonVehicleDetail> findByPersonIdAndDateBetweenAndDeletedFalse(
             Long personId, LocalDate startDate, LocalDate endDate);
 
+    boolean existsByPersonIdAndDeletedFalse(Long personId);
+
+    boolean existsByVehicleIdAndDeletedFalse(Long vehicleId);
+
     boolean existsByPersonIdAndVehicleIdAndDateAndDeletedFalse(Long personId, Long vehicleId, LocalDate date);
 
     /** Used by update - excludes the record's own id so a no-op update

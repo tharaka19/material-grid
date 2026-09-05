@@ -15,6 +15,7 @@ import com.pixelMind.materialGrid.exception.ExcelValidationException;
 import com.pixelMind.materialGrid.exception.ResourceNotFoundException;
 import com.pixelMind.materialGrid.mapper.VehicleMapper;
 import com.pixelMind.materialGrid.repository.DailyRouteRepository;
+import com.pixelMind.materialGrid.repository.PersonVehicleDetailRepository;
 import com.pixelMind.materialGrid.repository.VehicleExpenseRepository;
 import com.pixelMind.materialGrid.repository.VehicleLicenseRepository;
 import com.pixelMind.materialGrid.repository.VehicleRepository;
@@ -51,6 +52,7 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleExpenseRepository vehicleExpenseRepository;
     private final VehicleLicenseRepository vehicleLicenseRepository;
     private final DailyRouteRepository dailyRouteRepository;
+    private final PersonVehicleDetailRepository personVehicleDetailRepository;
     private final VehicleMapper vehicleMapper;
 
     private record RawVehicleRow(int rowNumber, String vehicleNumber, BigDecimal capacity, boolean hasFormatError) {
@@ -158,9 +160,10 @@ public class VehicleServiceImpl implements VehicleService {
 
         if (vehicleExpenseRepository.existsByVehicleIdAndDeletedFalse(id)
                 || vehicleLicenseRepository.existsByVehicleIdAndDeletedFalse(id)
-                || dailyRouteRepository.existsByVehicleIdAndDeletedFalse(id)) {
+                || dailyRouteRepository.existsByVehicleIdAndDeletedFalse(id)
+                || personVehicleDetailRepository.existsByVehicleIdAndDeletedFalse(id)) {
             throw new BusinessException(
-                    "Cannot delete vehicle with existing expense, license, or daily route records. "
+                    "Cannot delete vehicle with existing expense, license, daily route, or person vehicle detail records. "
                             + "These are historical records and this vehicle must be preserved for referential integrity.",
                     ErrorCodeConstants.BUSINESS_RULE_VIOLATION);
         }

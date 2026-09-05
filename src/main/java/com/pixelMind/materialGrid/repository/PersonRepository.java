@@ -18,6 +18,10 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     boolean existsByPersonCodeAndDeletedFalse(String personCode);
 
+    boolean existsByNameIgnoreCaseAndDeletedFalse(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNotAndDeletedFalse(String name, Long id);
+
     Page<Person> findAllByDeletedFalse(Pageable pageable);
 
     @Query("""

@@ -6,9 +6,12 @@ import com.pixelMind.materialGrid.dto.request.PersonCreateRequest;
 import com.pixelMind.materialGrid.dto.request.PersonUpdateRequest;
 import com.pixelMind.materialGrid.dto.response.PersonResponse;
 import com.pixelMind.materialGrid.entity.Person;
+import com.pixelMind.materialGrid.exception.BusinessException;
+import com.pixelMind.materialGrid.exception.DuplicateResourceException;
 import com.pixelMind.materialGrid.exception.ResourceNotFoundException;
 import com.pixelMind.materialGrid.mapper.PersonMapper;
 import com.pixelMind.materialGrid.repository.PersonRepository;
+import com.pixelMind.materialGrid.repository.PersonVehicleDetailRepository;
 import com.pixelMind.materialGrid.service.PersonService;
 import com.pixelMind.materialGrid.util.CodeGeneratorService;
 import com.pixelMind.materialGrid.util.SecurityUtil;
@@ -26,6 +29,7 @@ import org.springframework.util.StringUtils;
 public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
+    private final PersonVehicleDetailRepository personVehicleDetailRepository;
     private final PersonMapper personMapper;
     private final CodeGeneratorService codeGeneratorService;
 
@@ -33,7 +37,13 @@ public class PersonServiceImpl implements PersonService {
     @Transactional
     public PersonResponse createPerson(PersonCreateRequest request) {
 
-        // TODO: Validate person to avoid duplicate person names
+        String name = request.getName().trim();
+
+        if (personRepository.existsByNameIgnoreCaseAndDeletedFalse(name)) {
+            throw new DuplicateResourceException(
+                    "Person already exists with name: " + name,
+                    ErrorCodeConstants.DUPLICATE_PERSON_NAME);
+        }
 
         String actor = SecurityUtil.getCurrentUsername();
 
@@ -44,7 +54,7 @@ public class PersonServiceImpl implements PersonService {
 
         Person person = Person.builder()
                 .personCode(personCode)
-                .name(request.getName().trim())
+                .name(name)
                 .personType(request.getPersonType())
                 .createdBy(actor)
                 .modifiedBy(actor)
@@ -74,10 +84,24 @@ public class PersonServiceImpl implements PersonService {
     @Transactional
     public PersonResponse updatePerson(Long id, PersonUpdateRequest request) {
 
-        // TODO: Is exists any as escavator or checking records, need special authority to update this
-
         Person person = findOrThrow(id);
-        person.setName(request.getName().trim());
+
+        if (personVehicleDetailRepository.existsByPersonIdAndDeletedFalse(id)) {
+            throw new BusinessException(
+                    "Cannot update person with existing person vehicle detail records. "
+                            + "This person has historical transaction records and cannot be modified.",
+                    ErrorCodeConstants.BUSINESS_RULE_VIOLATION);
+        }
+
+        String name = request.getName().trim();
+
+        if (personRepository.existsByNameIgnoreCaseAndIdNotAndDeletedFalse(name, id)) {
+            throw new DuplicateResourceException(
+                    "Person already exists with name: " + name,
+                    ErrorCodeConstants.DUPLICATE_PERSON_NAME);
+        }
+
+        person.setName(name);
         person.setPersonType(request.getPersonType());
         person.setModifiedBy(SecurityUtil.getCurrentUsername());
         // personCode is never touched here - immutable by design.
@@ -91,10 +115,18 @@ public class PersonServiceImpl implements PersonService {
     @Transactional
     public void deletePerson(Long id) {
 
-        // TODO: Is exists any as escavator or checking records, must avoid delete
-
         Person person = findOrThrow(id);
-        personRepository.delete(person);
+
+        if (personVehicleDetailRepository.existsByPersonIdAndDeletedFalse(id)) {
+            throw new BusinessException(
+                    "Cannot delete person with existing person vehicle detail records. "
+                            + "These are historical records and this person must be preserved for referential integrity.",
+                    ErrorCodeConstants.BUSINESS_RULE_VIOLATION);
+        }
+
+        person.setDeleted(true);
+        person.setModifiedBy(SecurityUtil.getCurrentUsername());
+        personRepository.save(person);
         log.info("Person deleted: id={}, by={}", id, SecurityUtil.getCurrentUsername());
     }
 
