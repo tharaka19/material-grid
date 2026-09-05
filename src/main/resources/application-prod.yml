@@ -1,7 +1,4 @@
 spring:
-  application:
-    name: materialGrid
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -19,8 +16,9 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
         jdbc:
-          time_zone: UTC
+          time_zone: Asia/Colombo
 
   flyway:
     enabled: false
@@ -46,7 +44,3 @@ logging:
   level:
     root: INFO
     com.example.materialGrid: INFO
-
-cors:
-  allowed-origins:
-    - https://meskoramaterialgrid.com

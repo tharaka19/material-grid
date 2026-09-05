@@ -19,13 +19,14 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
         jdbc:
-          time_zone: UTC
+          time_zone: Asia/Colombo
 
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
-    baseline-on-migrate: true
+    baseline-on-migrate: false
 
 server:
   port: 8080
