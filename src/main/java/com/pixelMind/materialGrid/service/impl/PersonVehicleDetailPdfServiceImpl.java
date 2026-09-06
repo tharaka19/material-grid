@@ -84,7 +84,7 @@ public class PersonVehicleDetailPdfServiceImpl implements PersonVehicleDetailPdf
     }
 
     private void addReceiptTitleAndPersonInfo(Document document, PersonVehicleDetailReceipt receipt) throws Exception {
-        Paragraph receiptTitle = new Paragraph("PERSON VEHICLE DETAILS RECEIPT", RECEIPT_TITLE_FONT);
+        Paragraph receiptTitle = new Paragraph("PERSON VEHICLE DETAILS REPORT", RECEIPT_TITLE_FONT);
         receiptTitle.setAlignment(Element.ALIGN_CENTER);
         receiptTitle.setSpacingBefore(10f);
         receiptTitle.setSpacingAfter(12f);
