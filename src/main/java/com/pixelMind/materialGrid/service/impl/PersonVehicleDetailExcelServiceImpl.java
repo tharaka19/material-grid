@@ -85,7 +85,7 @@ public class PersonVehicleDetailExcelServiceImpl implements PersonVehicleDetailE
     private int writeReceiptTitleAndPersonInfo(Sheet sheet, Styles styles, PersonVehicleDetailReceipt receipt, int rowIndex) {
         Row titleRow = sheet.createRow(rowIndex);
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("PERSON VEHICLE DETAILS RECEIPT");
+        titleCell.setCellValue("PERSON VEHICLE DETAILS REPORT");
         titleCell.setCellStyle(styles.receiptTitle);
         mergeRowAcrossTable(sheet, rowIndex);
         rowIndex += 2; // spacer
